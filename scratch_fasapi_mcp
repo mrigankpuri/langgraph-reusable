@@ -1,0 +1,28 @@
+from enum import Enum
+
+from fastapi import FastAPI
+from fastapi_mcp import FastApiMCP
+
+app = FastAPI()
+
+
+class ApiTool(Enum):
+    CITY_WEATHER = "get_weather"
+
+
+@app.get("/weather/{city}", operation_id=ApiTool.CITY_WEATHER.name)
+async def weather_endpoint(city: str):
+    return {"weather": get_weather(city)}
+
+
+def get_weather(city: str) -> str:
+    """Get weather for a given city."""
+    return f"It's always sunny in {city}. But beware there is some strong wind predicted for tomorrow!"
+
+
+if __name__ == "__main__":
+    mcp = FastApiMCP(app, include_operations=[ApiTool.CITY_WEATHER.name])
+    mcp.mount()
+
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
